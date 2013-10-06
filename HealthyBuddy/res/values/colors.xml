@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colors for the Application -->
+    <color name="cream">#D5D0B0</color>
+    <color name="lime_green">#739240</color>
+    <color name="orange">#C86000</color>
+    <color name="dark_green">#425227</color>
+    
+</resources>
