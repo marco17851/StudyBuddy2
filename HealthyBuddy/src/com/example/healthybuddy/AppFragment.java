@@ -8,6 +8,7 @@ import com.example.healthybuddy.row.ItemRow;
 import com.example.healthybuddy.row.Row;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -32,11 +33,14 @@ public class AppFragment extends Fragment
 	private HashMap mToBeLocked;
 	private ArrayList<String> mLockList;
 	private Bundle extras;
+	
 	private Button mButton;
 	private CheckBox mCheckBox;
 	private TextView mAppName;
+	
 	private PackageManager mManager;
 	private Context mContext;
+	private Intent serviceIntent;
 	
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -130,8 +134,12 @@ public class AppFragment extends Fragment
 							mLockList.add((String) mAppName.getText());
 					}
 				}
-				
+			
+				serviceIntent = new Intent(getActivity(), ActivityMonitor.class);
+				//serviceIntent.putExtra("BL", mLockList);
 				Log.d(Globals.TAG, mLockList.toString());
+				
+				mContext.startService(serviceIntent);
 			}
 		});
 		

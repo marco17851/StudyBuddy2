@@ -17,57 +17,77 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 
+public class ActivityMonitor extends Service {
 
+	private Boolean active;
+	private Context context;
+	private ArrayList<String> blackList;
+	private ArrayList<String> bannedApps;
+	private Monitoring monitor;
 
-public class ActivityMonitor extends AsyncTask {
-	
+	public ActivityMonitor() {
+		active = false;
+	}
 
-private Boolean active;
-private Context context;
-private ArrayList<String> bannedApps;
+	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		// TODO do something useful
+		context = this.getApplicationContext();
+		//blackList = intent.getExtras().getStringArrayList("BL");
+		startMonitoring();
+		return Service.START_NOT_STICKY;
+	}
 
-public ActivityMonitor(ArrayList<String> blackList, Context parentcontext){
+	public void startMonitoring() {
+		Log.d(Globals.TAG, "start");
+		active = true;
+		monitor = new Monitoring();
+		monitor.execute();
+	}
 
-    active = false;
-    bannedApps = blackList;
-    context = parentcontext;
-}
+	public void stopMonitoring() {
+		active = false;
+	}
 
+	@Override
+	public IBinder onBind(Intent arg0) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-public void startMonitoring(){
-	active = true;
-}
-
-public void stopMonitoring(){
-	active = false;
-}
-
-private void monitorApps() {
-
-	ActivityManager am = (ActivityManager) context.getSystemService(Activity.ACTIVITY_SERVICE);
-	final List<RunningAppProcessInfo> runningApps = am.getRunningAppProcesses();
-
-
-	for(RunningAppProcessInfo app: runningApps){
-		for(String bannedapp: bannedApps){
-			if(app.processName.equalsIgnoreCase(bannedapp)){
-				android.os.Process.killProcess(app.pid);
+	private class Monitoring extends AsyncTask<Void, Void, Void> {
+		protected void onPreExecute() {
+			if (active == true) {
+				Log.d(Globals.TAG, "Monitoring...");
+				monitorApps();
 			}
 		}
-	}
+		
+		private void monitorApps() {
 
-}
-@Override
-protected Object doInBackground(Object... arg0) {
-	if(active == true){
-		monitorApps();
+			ActivityManager am = (ActivityManager) context
+					.getSystemService(Activity.ACTIVITY_SERVICE);
+			final List<RunningAppProcessInfo> runningApps = am
+					.getRunningAppProcesses();
+
+			for (RunningAppProcessInfo app : runningApps) {
+				for (String bannedapp : bannedApps) {
+					if (app.processName.equalsIgnoreCase(bannedapp)) {
+						android.os.Process.killProcess(app.pid);
+					}
+				}
+			}
+
+		}
+
+		@Override
+		protected Void doInBackground(Void... arg0) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}
 	}
-	try {
-		Thread.sleep(1000);
-	}
-	catch (InterruptedException e) {
-		e.printStackTrace();
-	}
-	return null;
-}
 }
